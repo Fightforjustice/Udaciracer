@@ -7,6 +7,11 @@ var store = {
 	race_id: undefined,
 }
 
+const raceCars = {}
+
+const raceTracks = {
+
+}
 // We need our javascript to wait until the DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
 	onPageLoad()
@@ -16,18 +21,50 @@ document.addEventListener("DOMContentLoaded", function() {
 async function onPageLoad() {
 	try {
 		getTracks()
-			.then(tracks => {
+			.then(tracks => {// first map track names to key names from my raceTracks objects
+				const scenes = tracks.map((element, index) => {
+					element.name = Object.keys(raceTracks)[index]
+					return element
+				})
+				return scenes
 				// console.log(tracks)
-				const html = renderTrackCards(tracks)
-				// console.log(html)
+				
+			})
+			.then(scenes =>{
+				const html = renderTrackCards(scenes)
+				console.log(html)
 				renderAt('#tracks', html)
-			})
+				return scenes
+			})/*
+			.then(scenes => {
+				scenes.map(obj => {
+					const { name, id } = obj
+					let curId = document.getElementById(`${id}`)
+					curId.addEventListener("mouseenter", changeImage(raceTracks[name]), false)
+				})
+			})*/
 
-		getRacers()
+		getRacers() // first map racer names to key names from my raceCar object
 			.then((racers) => {
-				const html = renderRacerCars(racers)
-				renderAt('#racers', html)
+				const sportsCars = racers.map((element, index) => {
+					element.driver_name = Object.keys(raceCars)[index]
+					return element
+				})
+				return sportsCars
+				
 			})
+			.then(cars => {				
+				const html = renderRacerCars(cars)
+				renderAt('#racers', html)
+				return cars
+			})/*
+			.then(cars => {
+				cars.map(obj => {
+					const { driver_name, id } = obj
+					let curId = document.getElementById(`${id}`)
+					curId.addEventListener("mouseenter", changeImage(raceTracks[driver_name]), false)
+				})
+			})*/
 	} catch(error) {
 		console.log("Problem getting tracks and racers ::", error.message)
 		console.error(error)
@@ -175,7 +212,7 @@ async function runCountdown() {
 }
 
 function handleSelectPodRacer(target) {
-	console.log("selected a pod", target.id)
+	console.log("selected a race car", target.id)
 
 	// remove class selected from all racer options
 	const selected = document.querySelector('#racers .selected')
@@ -223,7 +260,8 @@ function renderRacerCars(racers) {
 			<h4>Loading Racers...</4>
 		`
 	}
-//	const drivers = []
+
+
 
 	const results = racers.map(renderRacerCard).join('')
 
@@ -255,6 +293,7 @@ function renderTrackCards(tracks) {
 	}
 
 //	const scenes = []
+	
 
 	const results = tracks.map(renderTrackCard).join('')
 
@@ -273,6 +312,12 @@ function renderTrackCard(track) {
 			<h3>${name}</h3>
 		</li>
 	`
+}
+
+function changeImage(image){
+	console.log("hello")
+	const mainImage = document.querySelector('header')
+	mainImage.style.backgroundImage = image	
 }
 
 function renderCountdown(count) {
