@@ -7,10 +7,21 @@ var store = {
 	race_id: undefined,
 }
 
-const raceCars = {}
+const raceCars = {
+	"Corvette ZR1": "Corvette_ZR1",
+	"Ferrarri 458": "Ferrari_458",
+	"Ford GT40": "Ford_GT40",
+	"Lamborghini Huracan": "Lamborghini_Huracan",
+	"Mercedes AMG GTR": "Mercedes_AMG_GTR" 
+}
 
 const raceTracks = {
-
+	"Belgian Grand Prix": "belgian_grand_prix",
+	"Indy 500": "2016Indy500Start",
+	"Interlagos, Sao Paulo": "Interlagos_2006_aerial",
+	"Monaco Grand prix": "Monaco_grand_prix",
+	"NASCAR": "nascar-334705-1920",
+	"Downtown Tokyo": "Tokyo_freeway" 
 }
 // We need our javascript to wait until the DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
@@ -32,19 +43,19 @@ async function onPageLoad() {
 			})
 			.then(scenes =>{
 				const html = renderTrackCards(scenes)
-				console.log(html)
+				//console.log(html)
 				renderAt('#tracks', html)
 				return scenes
 			})
 			.then(scenes => {
 				scenes.map(obj => {
 					const { name, id } = obj
-					let curId = document.getElementById(`${id}`)
+					let curId = document.getElementById(`track${id}`)
 					curId.addEventListener("mouseenter", function(e) {
-						if (e.target.id === `${id}`){
+						if (e.target.id === `track${id}`){
 							changeImage(raceTracks[name])
 						}	
-					})
+					}, false)
 				})
 			})
 
@@ -65,10 +76,10 @@ async function onPageLoad() {
 			.then(cars => {
 				cars.map(obj => {
 					const { driver_name, id } = obj
-					let curId = document.getElementById(`${id}`)
+					let curId = document.getElementById(`car${id}`)
 					curId.addEventListener("mouseenter", function(e){
-						if (e.target.id === `${id}`){
-						changeImage(raceTracks[driver_name])
+						if (e.target.id === `car${id}`){
+							changeImage(raceCars[driver_name])
 						}
 					})
 				})
@@ -284,7 +295,7 @@ function renderRacerCard(racer) {
 	const { id, driver_name, top_speed, acceleration, handling } = racer
 
 	return `
-		<li class="card podracer" id="${id}">
+		<li class="card podracer" id="car${id}">
 			<h3>${driver_name}</h3>
 			<p>${top_speed}</p>
 			<p>${acceleration}</p>
@@ -316,16 +327,16 @@ function renderTrackCard(track) {
 	const { id, name } = track
 
 	return `
-		<li id="${id}" class="card track">
+		<li id="track${id}" class="card track">
 			<h3>${name}</h3>
 		</li>
 	`
 }
 
 function changeImage(image){
-	console.log("hello")
+	console.log(image)
 	const mainImage = document.querySelector('header')
-	mainImage.style.backgroundImage = image	
+	mainImage.style.backgroundImage = `url(images/${image}.jpg)`
 }
 
 function renderCountdown(count) {
