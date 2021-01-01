@@ -35,14 +35,18 @@ async function onPageLoad() {
 				console.log(html)
 				renderAt('#tracks', html)
 				return scenes
-			})/*
+			})
 			.then(scenes => {
 				scenes.map(obj => {
 					const { name, id } = obj
 					let curId = document.getElementById(`${id}`)
-					curId.addEventListener("mouseenter", changeImage(raceTracks[name]), false)
+					curId.addEventListener("mouseenter", function(e) {
+						if (e.target.id === `${id}`){
+							changeImage(raceTracks[name])
+						}	
+					})
 				})
-			})*/
+			})
 
 		getRacers() // first map racer names to key names from my raceCar object
 			.then((racers) => {
@@ -57,14 +61,18 @@ async function onPageLoad() {
 				const html = renderRacerCars(cars)
 				renderAt('#racers', html)
 				return cars
-			})/*
+			})
 			.then(cars => {
 				cars.map(obj => {
 					const { driver_name, id } = obj
 					let curId = document.getElementById(`${id}`)
-					curId.addEventListener("mouseenter", changeImage(raceTracks[driver_name]), false)
+					curId.addEventListener("mouseenter", function(e){
+						if (e.target.id === `${id}`){
+						changeImage(raceTracks[driver_name])
+						}
+					})
 				})
-			})*/
+			})
 	} catch(error) {
 		console.log("Problem getting tracks and racers ::", error.message)
 		console.error(error)
