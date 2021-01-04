@@ -3,9 +3,17 @@
 /* -------------------  MOBILE  --------------------- */
 
 header {
-  background-image: url('https://via.placeholder.com/1150');
+  background-image: url(/assets/images/checker-flags-297188.png), linear-gradient(to bottom, #ff0000 21%, #800000 100%);
 }
 
+#choose-racer, #submit-create-race {
+  display: none;
+}
+
+
+
+/* font-family: 'Faster One', cursive*/
+/*font-family: 'Syncopate', sans-serif;*/
 
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {
