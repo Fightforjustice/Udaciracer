@@ -2,36 +2,91 @@
 
 /* -------------------  MOBILE  --------------------- */
 header {
-  background-image: url('https://via.placeholder.com/1150');
+  background-image: url(/assets/images/checker-flags-297188.png), linear-gradient(to bottom, #ff0000 21%, #800000 100%);
+}
+
+div > img {
+    height: 28px;
+    width: auto;
 }
 
 main#two-columns {
     margin: 50px 0;
-    display: flex;
+    display: inline-block;
 }
 
+/*
 main#two-columns section {
     max-width: 50vw;
 }
+*/
 
+#accelerate {
+    display: block;
+    margin: auto;
+}
 section#accelerate button {
+    font-family: 'Faster One', cursive;
+    font-size: 30px;
     height: 300px;
     width: 300px;
     margin: 30px auto;
     border-radius: 180%;
-    background-color: green;
-    border-color: rgb(14, 166, 6);
+    background-image: radial-gradient(circle, #e6ffe6, green);
+    box-shadow: inset 0px 0px 20px #003300;
     cursor: pointer;
 }
 
+section#accelerate button:active {
+    box-shadow: inset 0px 0px 20px #003300, inset 0px 0px 10px black;
+}
 #big-numbers {
     font-weight: bolder;
     font-size: 70px;
 }
+.container {
+    position: relative;
+    height: 30px;
+    width: 100%;
+    background-color: grey;
+}
+
+.bars {
+    height: 100%;
+    width: 5%;
+    float: left;
+}
+
+.icon {
+    height: 25px;
+    width: auto;
+}
+
+#white{
+    border: 1px solid grey;
+}
+
+#leaderBoard {
+    width: 100%;
+    font-family: 'Syncopate', sans-serif;
+}
+
+
+
+
+
+
 
 /* -------------------  TABLET  --------------------- */
 @media (min-width: 768px) {
+    main#two-columns {
+        display: flex;
+    }
 
+    main#two-columns section {
+        max-width: 50vw;
+    }
+  
 }
 
 /* -------------------  DESKTOP  -------------------- */
