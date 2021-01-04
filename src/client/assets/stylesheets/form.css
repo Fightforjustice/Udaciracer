@@ -1,10 +1,11 @@
 form ul {
-    display: flex;
+    display: inline-block;
     padding: 20px;
 }
 
 form li {
-    border-radius: 6px;
+    font-family: 'Syncopate', sans-serif;
+    border-radius: 20px;
     -webkit-box-shadow: 5px 7px 5px 0px rgba(237,230,237,1);
     -moz-box-shadow: 5px 7px 5px 0px rgba(237,230,237,1);
     box-shadow: 5px 7px 5px 0px rgba(237,230,237,1);
@@ -25,7 +26,55 @@ form li.selected {
 }
 
 form li h3 {
+    text-align: center;
+    color: #800000;
+    text-shadow: 2px 1px hsl(0, 2%, 51%);
     border-bottom: 1px solid #545454;
     padding-bottom: 10px;
     margin-bottom: 10px;
+}
+
+#car1{
+    background-image: radial-gradient(#ffd699, #ff9900);
+    -webkit-box-shadow: inset 0px 0px 9px rgb(153, 92, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    -moz-box-shadow: inset 0px 0px 9px rgb(153, 92, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    box-shadow: inset 0px 0px 9px rgb(153, 92, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+}
+
+#car1:hover, #car2:hover, #car3:hover, #car4:hover, #car5:hover {
+    box-shadow: none
+}
+
+#car2{
+    background-image: radial-gradient(#ff9999, #ff0000);
+    -webkit-box-shadow: inset 0px 0px 9px rgb(102, 0, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    -moz-box-shadow: inset 0px 0px 9px rgb(102, 0, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    box-shadow: inset 0px 0px 9px rgb(102, 0, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+}
+
+#car3{
+    background-image: radial-gradient(#ffffff 50%, #cccccc);
+    -webkit-box-shadow: inset 0px 0px 9px rgb(102, 102, 102), 5px 7px 5px 0px rgba(237,230,237,1);
+    -moz-box-shadow: inset 0px 0px 9px rgb(102, 102, 102), 5px 7px 5px 0px rgba(237,230,237,1);
+    box-shadow: inset 0px 0px 9px rgb(102, 102, 102), 5px 7px 5px 0px rgba(237,230,237,1);
+}
+
+#car4{
+    background-image: radial-gradient(#b3ffb3, #00ff00);
+    -webkit-box-shadow: inset 0px 0px 9px rgb(0, 153, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    -moz-box-shadow: inset 0px 0px 9px rgb(0, 153, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    box-shadow: inset 0px 0px 9px rgb(0, 153, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+}
+
+#car5{
+    background-image: radial-gradient(#ffffcc, #ffff66);
+    -webkit-box-shadow: inset 0px 0px 9px rgb(230, 230, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    -moz-box-shadow: inset 0px 0px 9px rgb(230, 230, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+    box-shadow: inset 0px 0px 9px rgb(230, 230, 0), 5px 7px 5px 0px rgba(237,230,237,1);
+}
+
+@media (min-width: 768px) {
+    form ul {
+        display: flex;
+    }
 }
