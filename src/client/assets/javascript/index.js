@@ -5,6 +5,7 @@ var store = {
 	track_id: undefined,
 	player_id: undefined,
 	race_id: undefined,
+	race_length: undefined // race length in global var allows for calculating percentage of race finished for each car; progress bar
 }
 
 const raceCars = {
@@ -15,12 +16,14 @@ const raceCars = {
 	"Mercedes AMG GTR": "Mercedes_AMG_GTR" 
 }
 
+const colors = ['orange', 'red', 'white', 'green', 'yellow']
+
 const raceTracks = {
 	"Belgian Grand Prix": "belgian_grand_prix",
 	"Indy 500": "2016Indy500Start",
 	"Interlagos, Sao Paulo": "Interlagos_2006_aerial",
-	"Monaco Grand prix": "Monaco_grand_prix",
-	"NASCAR": "nascar-334705-1920",
+	"Monaco Grand Prix": "Monaco_grand_prix",
+	"NASCAR": "nascar-334705_1920",
 	"Downtown Tokyo": "Tokyo_freeway" 
 }
 // We need our javascript to wait until the DOM is loaded
@@ -45,17 +48,17 @@ async function onPageLoad() {
 				const html = renderTrackCards(scenes)
 				//console.log(html)
 				renderAt('#tracks', html)
-				return scenes
-			})
-			.then(scenes => {
 				scenes.map(obj => {
 					const { name, id } = obj
 					let curId = document.getElementById(`track${id}`)
-					curId.addEventListener("mouseenter", function(e) {
-						if (e.target.id === `track${id}`){
-							changeImage(raceTracks[name])
-						}	
-					}, false)
+					function handler (e) {
+							const selected = document.querySelector('#tracks .selected') // remove listener if any track is selected
+							if (selected){
+								curId.removeEventListener("mouseenter", handler, false)
+							}
+							else {changeImage(raceTracks[name])}	
+					}
+					curId.addEventListener("mouseenter", handler, false)
 				})
 			})
 
@@ -71,17 +74,17 @@ async function onPageLoad() {
 			.then(cars => {				
 				const html = renderRacerCars(cars)
 				renderAt('#racers', html)
-				return cars
-			})
-			.then(cars => {
 				cars.map(obj => {
 					const { driver_name, id } = obj
 					let curId = document.getElementById(`car${id}`)
-					curId.addEventListener("mouseenter", function(e){
-						if (e.target.id === `car${id}`){
-							changeImage(raceCars[driver_name])
+					function handler (e) {
+						const selected = document.querySelector('#racers .selected') // remove listener if any racer is selected
+						if (selected){
+							curId.removeEventListener("mouseenter", handler, false)
 						}
-					})
+						else {changeImage(raceCars[driver_name])}	
+				}
+				curId.addEventListener("mouseenter", handler, false)
 				})
 			})
 	} catch(error) {
@@ -123,7 +126,7 @@ function setupClickHandlers() {
 		}
 
 		// Handle acceleration click
-		if (target.matches('#gas-peddle')) {
+		if (target.matches('#gas-pedal')) {
 			handleAccelerate(target)
 		}
 
@@ -143,20 +146,20 @@ async function delay(ms) {
 // This async function controls the flow of the race, add the logic and error handling
 async function handleCreateRace() {
 	// render starting UI
-	
-
-	// TODO - Get player_id and track_id from the store
-	const { player_id, track_id } = store; 
+	const { player_id, track_id } = store;
 
 	await createRace(player_id, track_id)
 	.then((race_info) => {
-	// const race = TODO - invoke the API call to create the race, then save the result
-	// TODO - update the store with the race id
-		console.log(race_info)
-
 		store.race_id = parseInt(race_info.ID)
+		store.race_length = race_info.Track.segments.length
+		// console.log(store)
 		renderAt('#race', renderRaceStartView(race_info.Track))
-		console.log(store)
+	})
+	.then(() => {
+		console.log(store) 
+		const curTrack = Object.keys(raceTracks)[track_id - 1]
+		console.log(curTrack)
+		changeImage(raceTracks[curTrack])
 	})
 	.catch("unable to create race")
 
@@ -169,33 +172,61 @@ async function handleCreateRace() {
 async function runRace(raceID) {
 	try {
 		return await new Promise(resolve => {
+
 			const raceInterval = setInterval(() => 
 			{
 				getRace(raceID)
-				.then((raceInfo) => {console.log(`Race ${raceInfo.status}`)
-				if (raceInfo.status === "in-progress"){
-					renderAt('#leaderBoard', raceProgress(raceInfo.positions))
-				}
-				if (raceInfo.status==="finished"){
-					clearInterval(raceInterval)
-					renderAt('#race', resultsView(raceInfo.positions))
-					resolve()
+				.then((raceInfo) => {
+					// when race start, hide instructions if on mobile
+					const mql = window.matchMedia('(max-width: 768px)')
+					if (mql.matches){
+						const directions = document.querySelector(`#accelerate > h2`)
+						directions.style.display = "none"
+						const content = document.querySelector('#accelerate > p')
+						content.style.display = "none"
+					}
+					const { positions } = raceInfo
+					const places = positions.map((elem, ind) => {
+						let carKeys = Object.keys(raceCars)
+						elem.driver_name = carKeys[ind]
+						let carIndex = carKeys.indexOf(elem.driver_name)
+						elem.color = colors[carIndex] // add car color to each racer element
+						elem.icon = `/assets/images/${elem.color}_car.png` // add car icon image file to each racer element
+						return elem
+					})
+					
+					if (raceInfo.status === "in-progress"){
+						renderAt('#leaderBoard', raceProgress(places))
+						// console.log(document.getElementById('yellow-car').offsetWidth)
+						places.map(elem => { //update progress bar for each car
+							let bar = document.getElementById(elem.color)
+							let container = document.getElementById(`outer-${elem.color}`)
+							let curIcon = document.getElementById(`${elem.color}-car`)
+							let percentage = (elem.segment * 100)/store.race_length
+							bar.style.width = percentage + "%"
+							if (bar.offsetWidth >= container.offsetWidth - 56){ // prevent car icon from being pushed to next line when progress bar is near end
+								bar.style.float = null
+								curIcon.style.zIndex = "10"
+								curIcon.style.position = "absolute"
+								curIcon.style.top = "0px"
+								curIcon.style.right = "0px"
+							} 
+							if (percentage >= 100){
+								document.getElementById(`header${elem.id}`).innerHTML = `${elem.driver_name} finished!`
+							}
+						})
+					}
+					if (raceInfo.status==="finished"){
+						clearInterval(raceInterval)						
+						renderAt('#race', resultsView(places))
+						const bars = document.getElementsByClassName("container")
+						for (let i = 0; i < bars.length; i++){
+							bars[i].style.display = "none"
+						}
+						resolve()
 				}
 			}).catch(err => console.log("Error in running race", err))
 			}, 500)
-		/* 
-			TODO - if the race info status property is "in-progress", update the leaderboard by calling:
-
-			renderAt('#leaderBoard', raceProgress(res.positions))
-		*/
-
-		/* 
-			TODO - if the race info status property is "finished", run the following:
-
-			clearInterval(raceInterval) // to stop the interval from repeating
-			renderAt('#race', resultsView(res.positions)) // to render the results view
-			reslove(res) // resolve the promise
-		*/
 			})
 	}catch(error){
 		console.log(error);
@@ -231,7 +262,7 @@ async function runCountdown() {
 }
 
 function handleSelectPodRacer(target) {
-	console.log("selected a race car", target.id)
+	console.log("selected a race car", target.innerText)
 
 	// remove class selected from all racer options
 	const selected = document.querySelector('#racers .selected')
@@ -243,12 +274,23 @@ function handleSelectPodRacer(target) {
 	target.classList.add('selected')
 
 	// update store with racer id
-	store.player_id = parseInt(target.id)
+	const racerId = parseInt(target.id.slice(-1))
+	
+	store.player_id = racerId
+
+	const html = `You have selected ${Object.keys(raceCars)[racerId - 1]} as your car!`
+
+	renderAt("#choose-racer > h3", html)
+	// display new text for two seconds before hiding current section and showing next
+	setTimeout(() => {
+		document.getElementById("choose-racer").style.display = "none"
+		document.getElementById("submit-create-race").style.display = "block"
+	}, 2000)
 	//console.log(store)
 }
 
 function handleSelectTrack(target) {
-	console.log("selected a track", target.id)
+	console.log("selected a track", target.innerHTML)
 
 	// remove class selected from all track options
 	const selected = document.querySelector('#tracks .selected')
@@ -260,7 +302,19 @@ function handleSelectTrack(target) {
 	target.classList.add('selected')
 
 	// TODO - save the selected track id to the store
-	store.track_id = parseInt(target.id)
+
+	let curTrack = target.innerText
+
+	store.track_id = parseInt(target.id.slice(-1))
+
+	const html = `You have selected ${curTrack} as your track!`
+
+	renderAt("#choose-track > h3", html)
+	// display new text for two seconds before hiding current section and showing next
+	setTimeout(() => {
+		document.getElementById("choose-track").style.display = "none"
+		document.getElementById("choose-racer").style.display = "block"
+	}, 2000)
 	//console.log(store)
 }
 
@@ -297,9 +351,9 @@ function renderRacerCard(racer) {
 	return `
 		<li class="card podracer" id="car${id}">
 			<h3>${driver_name}</h3>
-			<p>${top_speed}</p>
-			<p>${acceleration}</p>
-			<p>${handling}</p>
+			<p>Top Speed: ${top_speed}</p>
+			<p>Acceleration: ${acceleration}</p>
+			<p>Handling: ${handling}</p>
 		</li>
 	`
 }
@@ -336,8 +390,10 @@ function renderTrackCard(track) {
 function changeImage(image){
 	console.log(image)
 	const mainImage = document.querySelector('header')
-	mainImage.style.backgroundImage = `url(images/${image}.jpg)`
+	mainImage.style.backgroundImage = `url(/assets/images/${image}.jpg)`
 }
+
+
 
 function renderCountdown(count) {
 	return `
@@ -347,9 +403,12 @@ function renderCountdown(count) {
 }
 
 function renderRaceStartView(track) {
+	/* The server always returns track 1, so track id must be gotten from store */
+	const {track_id} = store
+	const curTrack = Object.keys(raceTracks)[track_id]
 	return `
 		<header>
-			<h1>Race: ${track.name}</h1>
+			<h1>Race: &nbsp ${curTrack}</h1>
 		</header>
 		<main id="two-columns">
 			<section id="leaderBoard">
@@ -359,7 +418,7 @@ function renderRaceStartView(track) {
 			<section id="accelerate">
 				<h2>Directions</h2>
 				<p>Click the button as fast as you can to make your racer go faster!</p>
-				<button id="gas-peddle">Click Me To Win!</button>
+				<button id="gas-pedal">Click Me To Win!</button>
 			</section>
 		</main>
 		<footer></footer>
@@ -371,7 +430,7 @@ function resultsView(positions) {
 
 	return `
 		<header>
-			<h1>Race Results</h1>
+			<h1>Race &nbsp Results</h1>
 		</header>
 		<main>
 			${raceProgress(positions)}
@@ -381,25 +440,26 @@ function resultsView(positions) {
 }
 
 function raceProgress(positions) {
-	let userPlayer = positions.find(e => e.id === store.player_id)
-	userPlayer.driver_name += " (you)"
-
 	positions = positions.sort((a, b) => (a.segment > b.segment) ? -1 : 1)
 	let count = 1
 
 	const results = positions.map(p => {
+		if (p.id === store.player_id){
+			p.driver_name += " (you)"
+		}
 		return `
-			<tr>
-				<td>
-					<h3>${count++} - ${p.driver_name}</h3>
-				</td>
-			</tr>
+			<h3 id = "header${p.id}">${count++} - ${p.driver_name}</h3>
+				<div id = "outer-${p.color}" class = "container">
+					<div id = "${p.color}" class = "bars" style = "background-color: ${p.color}"></div>
+					<div  id = "${p.color}-car" class = "icon"><img src = "${p.icon}"></div>
+
+				</div>
 		`
-	})
+	}) 
 
 	return `
 		<main>
-			<h3>Leaderboard</h3>
+			<h3 style = "font-family: 'Faster One', cursive; font-size: 50px">Leaderboard</h3>
 			<section id="leaderBoard">
 				${results}
 			</section>
