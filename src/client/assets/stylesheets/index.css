@@ -21,17 +21,25 @@ body {
 }
 
 header {
-  background-image: url('https://via.placeholder.com/1150');
+  text-align: center;
+  background-image: url(/assets/images/checker-flags-297188.png), linear-gradient(to bottom, #ff0000 21%, #800000 100%);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  height: 100vh;
+  width: 100%;
+  height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+header > img {
+  width: 100%;
+  height: auto;
+}
+
 h1 {
+  font-family: 'Faster One', cursive;
   color: white;
   text-shadow: 3px 2px hsl(0, 2%, 51%);
   font-size: 70px;
@@ -47,6 +55,9 @@ h2 {
 }
 
 h3 {
+  display: block;
+  margin: auto;
+  text-align: center;
   color: black;
   font-weight: normal;
   font-size: 25px;
@@ -65,19 +76,45 @@ p {
 }
 
 .button {
+  font-family: 'Faster One', cursive;
   width: 250px;
-  padding: 20px 10px;
-  background-color: green;
+  padding: 20px 10px; 
+  background: #ff0000;
+  background: -webkit-linear-gradient(top,  #ff0000 31%,#ffe6e6 100%);
+  background: -moz-linear-gradient(top,  #ff0000 31%, #ffe6e6 100%);
+  background: -o-linear-gradient(top, #ff0000 31%,#ffe6e6 100%);
+  background: -ms-linear-gradient(top,  #ff0000 31%,#ffe6e6 100%);
+  background: linear-gradient(to bottom,  #ff0000 31%,#ffe6e6 100%);
   cursor: pointer;
-  border-radius: 4px;
-  border-color: 1px solid green;
-  color: white;
+  border-radius: 40px;
+  border-color: 1px solid #990000;
+  color: #000000;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, .5);
   font-size: 20px;
   text-transform: uppercase;
-  margin: 20px 0;
+  margin: 20px auto;
   display: block;
   text-align: center;
   text-decoration: none;
+  position: relative;
+}
+
+.button::before {
+  content: "";
+  width: 220px;
+  height: 50%;
+
+  display: block;
+  position:absolute;
+  left: 15px;
+  top: 0px;
+
+  border-radius: 15px;
+  background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(255,255,255,0.7) 8%, rgba(255,255,255,0) 100%);
+  background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,255,0.7) 8%,rgba(255,255,255,0) 100%);
+  background: -o-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,255,0.7) 8%,rgba(255,255,255,0) 100%);
+  background: -ms-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(255,255,255,0.7) 8%,rgba(255,255,255,0) 100%);
+  background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(255,255,255,0.7) 8%,rgba(255,255,255,0) 100%);
 }
 
 main {
@@ -85,6 +122,7 @@ main {
 }
 
 section {
+  text-align: center;
   max-width: 1280px;
   margin: 0 auto;
   padding: 30px 0;
