@@ -58,8 +58,7 @@ section#accelerate button:active {
 }
 
 .icon {
-    height: 25px;
-    width: auto;
+    float: left;
 }
 
 #white{
