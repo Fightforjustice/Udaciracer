@@ -75,6 +75,7 @@ p {
   font-size: 18px;
 }
 
+/* found method for glossy buttons at https://www.hongkiat.com/blog/css3-glossy-effect/*/
 .button {
   font-family: 'Faster One', cursive;
   width: 250px;

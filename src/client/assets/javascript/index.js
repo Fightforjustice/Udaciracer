@@ -34,23 +34,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
 async function onPageLoad() {
 	try {
-		getTracks()
-			.then(tracks => {// first map track names to key names from my raceTracks objects
-				const scenes = tracks.map((element, index) => {
+		Promise.all([getTracks(), getRacers()])
+		.then(results => {
+			// results.forEach(result => console.log(result))
+			const tracks = results[0]
+			const scenes = tracks.map((element, index) => {
 					element.name = Object.keys(raceTracks)[index]
 					return element
 				})
-				return scenes
-				// console.log(tracks)
-				
-			})
-			.then(scenes =>{
-				const html = renderTrackCards(scenes)
+			const racers = results[1]
+			const sportsCars = racers.map((element, index) => {
+					element.driver_name = Object.keys(raceCars)[index]
+					return element
+				})
+			return [scenes, sportsCars]
+		})
+		.then(final => {
+			const scenes = final[0]
+			const htmls = renderTrackCards(scenes)
 				//console.log(html)
-				renderAt('#tracks', html)
+				renderAt('#tracks', htmls)
 				scenes.map(obj => {
 					const { name, id } = obj
 					let curId = document.getElementById(`track${id}`)
+					/* found tips for adding handler to dynamically elements at 
+					https://usefulangle.com/post/138/pure-javascript-event-handler-dynamic-element and 
+					https://knowledge.udacity.com/questions/431180?utm_campaign=ret_600_auto_ndxxx_knowledge-answer-created_na&utm_source=blueshift&utm_medium=email&utm_content=ret_600_auto_ndxxx_knowledge-answer-created_na&bsft_clkid=894885db-f4dc-4574-a31e-35ffde3db51c&bsft_uid=8b823cda-bd7c-46bc-bf17-f059236ebf71&bsft_mid=0a79b0f0-87e8-4dbb-a6db-47ed7500fb9a&bsft_eid=22b8f7b6-5eac-66ee-cf9f-0d5b86b9fddc&bsft_txnid=f42044f8-9526-4eaa-bd81-dcacbdeab259&bsft_mime_type=html&bsft_ek=2020-12-31T23%3A09%3A38Z&bsft_aaid=8d7e276e-4a10-41b2-8868-423fe96dd6b2&bsft_lx=1&bsft_tv=1#431217*/
 					function handler (e) {
 							const selected = document.querySelector('#tracks .selected') // remove listener if any track is selected
 							if (selected){
@@ -60,25 +69,15 @@ async function onPageLoad() {
 					}
 					curId.addEventListener("mouseenter", handler, false)
 				})
-			})
 
-		getRacers() // first map racer names to key names from my raceCar object
-			.then((racers) => {
-				const sportsCars = racers.map((element, index) => {
-					element.driver_name = Object.keys(raceCars)[index]
-					return element
-				})
-				return sportsCars
-				
-			})
-			.then(cars => {				
-				const html = renderRacerCars(cars)
-				renderAt('#racers', html)
+			const cars = final[1]
+			const htmlc = renderRacerCars(cars)
+				renderAt('#racers', htmlc)
 				cars.map(obj => {
 					const { driver_name, id } = obj
 					let curId = document.getElementById(`car${id}`)
 					function handler (e) {
-						const selected = document.querySelector('#racers .selected') // remove listener if any racer is selected
+						const selected = document.querySelector('#racers .selected') // remove listener if any racer is selected; found method at https://stackoverflow.com/a/4402359
 						if (selected){
 							curId.removeEventListener("mouseenter", handler, false)
 						}
@@ -86,7 +85,28 @@ async function onPageLoad() {
 				}
 				curId.addEventListener("mouseenter", handler, false)
 				})
+		}) 
+		/*
+		getTracks()
+			.then(tracks => {// first map track names to key names from my raceTracks objects
+				
+				return scenes
+				// console.log(tracks)
+				
 			})
+			.then(scenes =>{
+				
+			})
+
+		getRacers() // first map racer names to key names from my raceCar object
+			.then((racers) => {
+				
+				return sportsCars
+				
+			})
+			.then(cars => {				
+				
+			})*/
 	} catch(error) {
 		console.log("Problem getting tracks and racers ::", error.message)
 		console.error(error)
@@ -95,6 +115,7 @@ async function onPageLoad() {
 
 function setupClickHandlers() {
 	document.addEventListener('click', function(event) {
+		// found methods for gracefully handling clicking on card elements at https://stackoverflow.com/a/38861760 and https://knowledge.udacity.com/questions/398046 
 		let parent = event.target.parentElement	
 		const { target } = event
 
@@ -156,9 +177,9 @@ async function handleCreateRace() {
 		renderAt('#race', renderRaceStartView(race_info.Track))
 	})
 	.then(() => {
-		console.log(store) 
+		// console.log(store) 
 		const curTrack = Object.keys(raceTracks)[track_id - 1]
-		console.log(curTrack)
+		// console.log(curTrack)
 		changeImage(raceTracks[curTrack])
 	})
 	.catch("unable to create race")
@@ -191,7 +212,7 @@ async function runRace(raceID) {
 						elem.driver_name = carKeys[ind]
 						let carIndex = carKeys.indexOf(elem.driver_name)
 						elem.color = colors[carIndex] // add car color to each racer element
-						elem.icon = `/assets/images/${elem.color}_car.png` // add car icon image file to each racer element
+						elem.icon = `/assets/images/${elem.color}_car.png` // add car icon image file to each racer element; see https://knowledge.udacity.com/questions/404695
 						return elem
 					})
 					
@@ -205,7 +226,8 @@ async function runRace(raceID) {
 							let percentage = (elem.segment * 100)/store.race_length
 							bar.style.width = percentage + "%"
 							if (bar.offsetWidth >= container.offsetWidth - 56){ // prevent car icon from being pushed to next line when progress bar is near end
-								bar.style.float = null
+								bar.style.float = null // found method for removing attribute at https://stackoverflow.com/a/33039348
+								curIcon.style.float = null
 								curIcon.style.zIndex = "10"
 								curIcon.style.position = "absolute"
 								curIcon.style.top = "0px"
@@ -492,13 +514,13 @@ function defaultFetchOpts() {
 
 // TODO - Make a fetch call (with error handling!) to each of the following API endpoints 
 
-function getTracks() {
+const getTracks = () => {
 	return fetch(`${SERVER}/api/tracks`)
 	.then(res => res.json())
 	.catch(err => console.log("Problem with getTracks request::", err))
 }
 
-function getRacers() {
+const getRacers = () => {
 	return fetch(`${SERVER}/api/cars`)
 	.then(res => res.json())
 	.catch(err => console.log("Problem with getRacers request::", err))
